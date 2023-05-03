@@ -1,41 +1,54 @@
 #include <iostream>
 #include <vector>
-#include <algorithm>
-#include <numeric>
-
-using namespace std;
-
-int n;
-vector<int> a;
-
-int dfs(int idx, int cur_sum, int cur_count, int removed, vector<vector<vector<int>>>& dp) {
-    if (idx == n) {
-        if (cur_count > 0 && (double)cur_sum / cur_count == (double)(accumulate(a.begin(), a.end(), 0) - cur_sum) / (n - cur_count)) {
-            return removed;
-        }
-        return 0;
-    }
-    if (cur_sum > accumulate(a.begin(), a.end(), 0) || cur_count > n) {
-        return -1;
-    }
-    if (dp[idx][cur_sum][cur_count] != -1) {
-        return dp[idx][cur_sum][cur_count] + removed;
-    }
-    int res = dfs(idx + 1, cur_sum + a[idx], cur_count + 1, removed, dp);
-    res = max(res, dfs(idx + 1, cur_sum, cur_count, removed + 1, dp));
-    dp[idx][cur_sum][cur_count] = res - removed;
-    return res;
-}
+#include <cmath>
 
 int main() {
-    cin >> n;
-    a.resize(n);
-    for (int i = 0; i < n; i++) {
-        cin >> a[i];
+    int n;
+    std::cin >> n;
+
+    if (n < 1 || n > 50) {
+        std::cout << 0 << std::endl;
+        return 0;
     }
 
-    vector<vector<vector<int>>> dp(n, vector<vector<int>>(accumulate(a.begin(), a.end(), 0) + 1, vector<int>(n + 1, -1)));
-    cout << dfs(0, 0, 0, 0, dp) << endl;
+    std::vector<int> arr(n);
+    size_t sum = 0;
+    for (int i = 0; i < n; i++) {
+        std::cin >> arr[i];
+        if (std::abs(arr[i]) > 10000) {
+            std::cout << 0 << std::endl;
+            return 0;
+        }
+        sum += arr[i];
+    }
+
+    const double Avg = static_cast<double>(sum) / n;
+    int start = 0, end = n - 1;
+    size_t currSum = sum, currCount = n;
+    size_t maxRemoved = 0;
+    const double eps = 1e-8;
+
+    while (start <= end) {
+        double currAvg = static_cast<double>(currSum) / currCount;
+
+        if (std::abs(currAvg - Avg) < eps) {
+            maxRemoved = std::max(maxRemoved, n - currCount);
+            currSum -= arr[start++];
+            currCount--;
+        }
+        else {
+            if (currAvg < Avg) {
+                currSum -= arr[start++];
+                currCount--;
+            }
+            else {
+                currSum -= arr[end--];
+                currCount--;
+            }
+        }
+    }
+
+    std::cout << maxRemoved << std::endl;
 
     return 0;
 }

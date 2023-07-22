@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <algorithm> 
+
 
 int main() {
     int n;
@@ -22,6 +24,8 @@ int main() {
         sum += arr[i];
     }
 
+    std::sort(arr.begin(), arr.end());
+
     const double Avg = static_cast<double>(sum) / n;
     int start = 0, end = n - 1;
     size_t currSum = sum, currCount = n;
@@ -36,15 +40,13 @@ int main() {
             currSum -= arr[start++];
             currCount--;
         }
+        else if (currAvg < Avg) {
+            currSum -= arr[start++];
+            currCount--;
+        }
         else {
-            if (currAvg < Avg) {
-                currSum -= arr[start++];
-                currCount--;
-            }
-            else {
-                currSum -= arr[end--];
-                currCount--;
-            }
+            currSum -= arr[end--];
+            currCount--;  
         }
     }
 
